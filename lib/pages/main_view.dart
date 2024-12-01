@@ -8,19 +8,12 @@ class MainPageNavBottom extends StatefulWidget {
   const MainPageNavBottom({super.key});
 
   @override
-  State<MainPageNavBottom> createState() =>
-      _MainPageNavBottomState();
+  State<MainPageNavBottom> createState() => _MainPageNavBottomState();
 }
 
-class _MainPageNavBottomState
-    extends State<MainPageNavBottom> {
+class _MainPageNavBottomState extends State<MainPageNavBottom> {
   int _selectedIndex = 0;
-  final pages = [
-
-    MyHomePage(),
-    Graphs()
-
-  ];
+  final pages = [MyHomePage(), Graphs()];
   final ScrollController _homeController = ScrollController();
 
   @override
@@ -30,7 +23,7 @@ class _MainPageNavBottomState
         preferredSize: const Size.fromHeight(80),
         child: AppBar(
             title: Text(
-              'Agriculture',
+              'Irrigation Monitoring System',
               style: TextStyle(
                   fontSize: 30,
                   foreground: Paint()
@@ -42,9 +35,7 @@ class _MainPageNavBottomState
             elevation: 4,
             backgroundColor: const Color.fromARGB(255, 10, 194, 169)),
       ),
-
       body: pages[_selectedIndex],
-
       bottomNavigationBar: SizedBox(
         height: 70,
         child: BottomNavigationBar(
@@ -55,7 +46,7 @@ class _MainPageNavBottomState
             ),
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.graph_circle),
-              label: 'Graphs',
+              label: 'Analytics',
             ),
           ],
           currentIndex: _selectedIndex,
@@ -72,7 +63,7 @@ class _MainPageNavBottomState
                   );
                 }
               case 1:
-                //showModal(context);
+              //showModal(context);
             }
             setState(
               () {
