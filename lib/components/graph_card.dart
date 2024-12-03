@@ -106,6 +106,7 @@ class GraphCard extends StatelessWidget {
                     color: color,
                     dotData: FlDotData(show: false),
                     belowBarData: BarAreaData(show: false),
+                    preventCurveOverShooting: true,
                   ),
                 ],
                 minY: double.parse(

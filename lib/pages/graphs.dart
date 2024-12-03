@@ -48,7 +48,7 @@ class _GraphsState extends State<Graphs> {
   @override
   void initState() {
     super.initState();
-    fetchData("1day"); // Default load for "1 day"
+    fetchData("1d"); // Default load for "1 day"
   }
 
   @override
@@ -67,18 +67,34 @@ class _GraphsState extends State<Graphs> {
               children: [
                 ElevatedButton(
                   onPressed: () => fetchData("1d"),
+                  style: timeRange == "1d"
+                      ? ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[300])
+                      : null,
                   child: const Text("1 Day"),
                 ),
                 ElevatedButton(
                   onPressed: () => fetchData("7d"),
+                  style: timeRange == "7d"
+                      ? ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[300])
+                      : null,
                   child: const Text("7 Days"),
                 ),
                 ElevatedButton(
                   onPressed: () => fetchData("14d"),
+                  style: timeRange == "14d"
+                      ? ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[300])
+                      : null,
                   child: const Text("14 Days"),
                 ),
                 ElevatedButton(
                   onPressed: () => fetchData("30d"),
+                  style: timeRange == "30"
+                      ? ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[300])
+                      : null,
                   child: const Text("30 Days"),
                 ),
               ],

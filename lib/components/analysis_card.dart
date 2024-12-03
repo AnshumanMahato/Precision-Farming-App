@@ -51,8 +51,7 @@ class AnalysisCard extends StatelessWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            height: 300, // Height for the graph
+          Expanded(
             child: LineChart(
               LineChartData(
                 gridData: const FlGridData(show: true),
@@ -112,6 +111,7 @@ class AnalysisCard extends StatelessWidget {
                     color: Colors.red,
                     dotData: FlDotData(show: false),
                     belowBarData: BarAreaData(show: false),
+                    preventCurveOverShooting: true,
                   ),
                   LineChartBarData(
                     spots: farmData
@@ -167,8 +167,46 @@ class AnalysisCard extends StatelessWidget {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                LegendItem(color: Colors.red, text: 'Max'),
+                SizedBox(width: 20),
+                LegendItem(color: Colors.blue, text: 'Average'),
+                SizedBox(width: 20),
+                LegendItem(color: Colors.green, text: 'Min'),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+}
+
+class LegendItem extends StatelessWidget {
+  final Color color;
+  final String text;
+
+  LegendItem({required this.color, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        SizedBox(width: 5),
+        Text(text, style: TextStyle(fontSize: 14)),
+      ],
     );
   }
 }
