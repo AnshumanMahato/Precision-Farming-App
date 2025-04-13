@@ -1,7 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-
-import 'package:flutter_agri_app/getter_functions/get_functions.dart';
+import 'package:http/http.dart' as http;
+import "../services/socket_service.dart";
+import "../components/pump_control_card.dart";
+import "../components/item_dashboard.dart";
+import '../components/graph_card.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -11,26 +16,65 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  PumpService pumpSocket = PumpService();
+  List<Map<String, dynamic>> farmData = [];
+  String pumpStatus = 'OFF';
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (mounted) fetchData(); // Fetch initial data
+    pumpSocket.initializeConnection('FARM001');
+    pumpSocket.startPump = () {
+      if (mounted) {
+        setState(() {
+          pumpStatus = 'ON';
+        });
+      }
+    };
+    pumpSocket.stopPump = () {
+      if (mounted) {
+        setState(() {
+          pumpStatus = 'OFF';
+        });
+      }
+    };
+    timer = Timer.periodic(const Duration(seconds: 10), (timer) => fetchData());
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel(); // Cancel the timer to avoid memory leaks
+    super.dispose();
+  }
+
+  Future<void> fetchData() async {
+    final url = Uri.parse(
+        'http://192.168.1.35:5000/api/farm/FARM001/data'); // Replace with your API endpoint
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final decodedResponse = jsonDecode(response.body);
+        if (mounted) {
+          setState(() {
+            farmData =
+                List<Map<String, dynamic>>.from(decodedResponse['farmData']);
+          });
+        }
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final lastData = farmData.isNotEmpty ? farmData.last : null;
+
     return Scaffold(
-    /*  appBar: PreferredSize(
-        preferredSize: Size.fromHeight(80),
-        child: AppBar(
-            title: Text(
-              'Agri-App',
-              style: TextStyle(
-                  fontSize: 30,
-                  foreground: Paint()
-                    ..style = PaintingStyle.stroke
-                    ..strokeWidth = 3.4
-                    ..color = const Color.fromARGB(255, 73, 67, 67)),
-              textAlign: TextAlign.center,
-            ),
-            elevation: 4,
-            backgroundColor: const Color.fromARGB(255, 211, 138, 236)),
-      ), */
-      
       body: ListView(
         padding: const EdgeInsets.only(top: 0),
         children: [
@@ -40,9 +84,9 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 157, 239, 241),
-                  borderRadius:
-                      BorderRadius.only(topLeft: Radius.circular(900))),
+                color: Color.fromARGB(255, 157, 239, 241),
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(900)),
+              ),
               child: GridView.count(
                 padding: const EdgeInsets.only(bottom: 80),
                 shrinkWrap: true,
@@ -51,63 +95,56 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisSpacing: 40,
                 mainAxisSpacing: 30,
                 children: [
-                  itemDashboard('Temparature', getTemp(0), CupertinoIcons.thermometer,
-                      Colors.deepOrange),
                   itemDashboard(
-                      'Soil Moisture', getSoilmoisture(0), CupertinoIcons.drop, Colors.blue),
-                  itemDashboard('Daylight', getDaylight('temp'), CupertinoIcons.cloud_sun,
-                      const Color.fromARGB(255, 255, 186, 59)),
+                    'Temperature',
+                    lastData != null ? '${lastData["temperature"]}°C' : '...',
+                    CupertinoIcons.thermometer,
+                    Colors.deepOrange,
+                  ),
                   itemDashboard(
-                      'Humidity', getHumidity(0), CupertinoIcons.wind, Colors.deepPurple),
-                  //Need to add action-listener/on-tap method on the wigdets below.
+                    'Soil Moisture',
+                    lastData != null ? '${lastData["moisture"]}%' : '...',
+                    CupertinoIcons.drop,
+                    Colors.blue,
+                  ),
                   itemDashboard(
-                      'On Switch', '', CupertinoIcons.bolt, Colors.grey),
-                  itemDashboard('Off Switch', '', CupertinoIcons.bolt_slash,
-                      Colors.grey),
-                  
+                    'Humidity',
+                    lastData != null ? '${lastData["humidity"]}%' : '...',
+                    CupertinoIcons.wind,
+                    Colors.deepPurple,
+                  ),
+                  pumpControlCard(
+                    pumpStatus,
+                    () {
+                      String event =
+                          pumpStatus == 'ON' ? 'stopPump' : 'startPump';
+                      pumpSocket.sendData(event, {"farmId": 'FARM001'});
+                    },
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 20)
+          GraphCard(
+            farmData: farmData,
+            title: "Temperature",
+            field: "temperature",
+            color: Colors.deepOrange,
+          ),
+          GraphCard(
+            farmData: farmData,
+            title: "Soil Moisture",
+            field: "moisture",
+            color: Colors.blue,
+          ),
+          GraphCard(
+            farmData: farmData,
+            title: "Humidity",
+            field: "humidity",
+            color: Colors.deepPurple,
+          ),
         ],
       ),
     );
   }
-
-  itemDashboard(
-          String title, String reading, IconData iconData, Color background) =>
-      Container(
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                  offset: const Offset(0, 5),
-                  color: Theme.of(context).primaryColor.withOpacity(.2),
-                  spreadRadius: 2,
-                  blurRadius: 5)
-            ]),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: background,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(iconData, color: Colors.white)),
-                Text(reading)
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(title.toUpperCase(),
-                style: Theme.of(context).textTheme.titleMedium)
-          ],
-        ),
-      );
 }

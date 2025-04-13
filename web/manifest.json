@@ -1,6 +1,6 @@
 {
-    "name": "flutter_agri_app",
-    "short_name": "flutter_agri_app",
+    "name": "precision_farming",
+    "short_name": "precision_farming",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
