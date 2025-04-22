@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_agri_app/pages/graphs.dart';
 import 'package:flutter_agri_app/pages/home_page.dart';
+import 'package:flutter_agri_app/pages/input_form.dart';
 
 class MainPageNavBottom extends StatefulWidget {
   const MainPageNavBottom({super.key});
@@ -13,7 +14,7 @@ class MainPageNavBottom extends StatefulWidget {
 
 class _MainPageNavBottomState extends State<MainPageNavBottom> {
   int _selectedIndex = 0;
-  final pages = [MyHomePage(), Graphs()];
+  final pages = [MyHomePage(), Graphs(), InputForm()];
   final ScrollController _homeController = ScrollController();
 
   @override
@@ -48,6 +49,10 @@ class _MainPageNavBottomState extends State<MainPageNavBottom> {
               icon: Icon(CupertinoIcons.graph_circle),
               label: 'Analytics',
             ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.chart_bar_circle),
+              label: 'Prediction',
+            )
           ],
           currentIndex: _selectedIndex,
           selectedItemColor: Colors.amber[800],
