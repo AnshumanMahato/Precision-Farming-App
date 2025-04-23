@@ -8,12 +8,6 @@ class InputForm extends StatefulWidget {
 }
 
 class _InputFormState extends State<InputForm> {
-  String? _selectedCrop;
-  String? _selectedStage;
-
-  final List<String> _crops = ['Wheat', 'Rice', 'Corn', 'Barley', 'Soybean'];
-  final List<String> _stages = ['Seedling', 'Vegetative', 'Flowering'];
-
   // Form key to access the form and validate
   final _formKey = GlobalKey<FormState>();
 
@@ -29,8 +23,6 @@ class _InputFormState extends State<InputForm> {
   // Function to get the values from the form.
   Map<String, String> get formValues {
     return {
-      'crop': _selectedCrop ?? '',
-      'stage': _selectedStage ?? '',
       'nitrogen': _nitrogenController.text,
       'phosphorus': _phosphorusController.text,
       'potassium': _potassiumController.text,
@@ -43,10 +35,6 @@ class _InputFormState extends State<InputForm> {
 
   // Function to clear all the text fields and reset dropdowns
   void _clearForm() {
-    setState(() {
-      _selectedCrop = null;
-      _selectedStage = null;
-    });
     _nitrogenController.clear();
     _phosphorusController.clear();
     _potassiumController.clear();
@@ -87,64 +75,6 @@ class _InputFormState extends State<InputForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                // Crop Dropdown
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'Select Crop',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.grass),
-                  ),
-                  value: _selectedCrop,
-                  hint: const Text('Choose a crop'),
-                  items: _crops.map((String crop) {
-                    return DropdownMenuItem<String>(
-                      value: crop,
-                      child: Text(crop),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedCrop = newValue;
-                      print('Selected Crop: $_selectedCrop');
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a crop';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12.0),
-
-                // Stage Dropdown
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'Select Stage',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.punch_clock),
-                  ),
-                  value: _selectedStage,
-                  hint: const Text('Choose a stage'),
-                  items: _stages.map((String stage) {
-                    return DropdownMenuItem<String>(
-                      value: stage,
-                      child: Text(stage),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedStage = newValue;
-                      print('Selected Stage: $_selectedStage');
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a stage';
-                    }
-                    return null;
-                  },
-                ),
                 const SizedBox(height: 20.0),
 
                 // Nitrogen input field
@@ -319,7 +249,8 @@ class _InputFormState extends State<InputForm> {
                                 content: SingleChildScrollView(
                                   child: ListBody(
                                     children: data.entries.map((entry) {
-                                      return Text('${entry.key}: ${entry.value}');
+                                      return Text(
+                                          '${entry.key}: ${entry.value}');
                                     }).toList(),
                                   ),
                                 ),

@@ -21,6 +21,11 @@ class _MyHomePageState extends State<MyHomePage> {
   String pumpStatus = 'OFF';
   Timer? timer;
 
+  String? selectedCrop;
+  String? selectedStage;
+  List<String> cropOptions = ['Wheat', 'Rice', 'Corn', 'Barley', 'Soybean'];
+  List<String> stageOptions = ['Seedling', 'Vegetative', 'Flowering'];
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +83,111 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListView(
         padding: const EdgeInsets.only(top: 0),
         children: [
+          Container(
+            padding: const EdgeInsets.only(top: 10),
+            color: const Color.fromARGB(255, 145, 164, 248),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade200,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 141, 140, 140),
+                              width: 2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: DropdownButton<String>(
+                          value: selectedCrop,
+                          hint: const Text('Select Crop'),
+                          items: cropOptions.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedCrop = newValue;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 7.0),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade200,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 141, 140, 140),
+                              width: 2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: DropdownButton<String>(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          value: selectedStage,
+                          hint: const Text('Select Stage'),
+                          items: stageOptions.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedStage = newValue;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 7.0),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.only(top: 10),
+            color: const Color.fromARGB(255, 145, 164, 248),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (selectedCrop != null && selectedStage != null) {
+                        print('Crop: $selectedCrop, Stage: $selectedStage');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Please select both crop and stage')),
+                        );
+                      }
+                    },
+                    child: const Text('Submit'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedCrop = null;
+                        selectedStage = null;
+                      });
+                    },
+                    child: const Text('Clear'),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Container(
             padding: const EdgeInsets.only(top: 35),
             color: const Color.fromARGB(255, 145, 164, 248),
