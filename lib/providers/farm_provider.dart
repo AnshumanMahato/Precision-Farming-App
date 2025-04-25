@@ -1,40 +1,55 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FarmProvider extends ChangeNotifier {
-  String _farmId = "";
-  bool _isConnected = false;
+  static const String _farmIDKey = 'farm_id';
+  static const String _moistureMinKey = 'moisture_min';
+  static const String _moistureMaxKey = 'moisture_max';
 
-  String get farmId => _farmId;
-  bool get isConnected => _isConnected;
+  String _farmID = "";
+  int _moistureMin = 30;
+  int _moistureMax = 70;
 
-  // Initialize FarmProvider and load saved farm ID if available
-  Future<void> initialize() async {
-    final prefs = await SharedPreferences.getInstance();
-    _farmId = prefs.getString('farmId') ?? "";
-    _isConnected = _farmId.isNotEmpty;
+  SharedPreferences? _prefs;
+
+  FarmProvider() {
+    _loadFromPrefs();
+  }
+
+  Future<void> _loadFromPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+    _farmID = _prefs?.getString(_farmIDKey) ?? "";
+    _moistureMin = _prefs?.getInt(_moistureMinKey) ?? 30;
+    _moistureMax = _prefs?.getInt(_moistureMaxKey) ?? 70;
     notifyListeners();
   }
 
-  // Set farm ID and save to SharedPreferences for persistence
-  Future<void> setFarmId(String farmId) async {
-    _farmId = farmId;
-    _isConnected = farmId.isNotEmpty;
+  Future<void> _saveToPrefs() async {
+    if (_prefs == null) {
+      _prefs = await SharedPreferences.getInstance();
+    }
+    await _prefs?.setString(_farmIDKey, _farmID);
+    await _prefs?.setInt(_moistureMinKey, _moistureMin);
+    await _prefs?.setInt(_moistureMaxKey, _moistureMax);
+  }
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('farmId', farmId);
+  String get farmID => _farmID;
+  int get moistureMin => _moistureMin;
+  int get moistureMax => _moistureMax;
 
+  Future<void> setFarmID(String farmID) async {
+    _farmID = farmID;
+    await _saveToPrefs();
     notifyListeners();
   }
 
-  // Disconnect and clear farm ID
-  Future<void> disconnect() async {
-    _farmId = "";
-    _isConnected = false;
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('farmId');
-
+  void setMoistureThresholds(int min, int max) {
+    if (min > max) {
+      throw Exception("Minimum moisture cannot be greater than maximum.");
+    }
+    _moistureMin = min;
+    _moistureMax = max;
+    _saveToPrefs();
     notifyListeners();
   }
 }

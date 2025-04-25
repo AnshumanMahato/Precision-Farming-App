@@ -1,6 +1,6 @@
 name: flutter_agri_app
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -16,6 +16,7 @@ dependencies:
   intl: ^0.20.1
   socket_io_client: ^3.0.2
   shared_preferences: ^2.5.3
+  flutter_local_notifications: ^17.0.0
   provider: ^6.1.4
 
 dev_dependencies:
